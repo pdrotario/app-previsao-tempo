@@ -1,16 +1,25 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt">
     <head>
         <meta charset="UTF-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <title>Tempo</title>
+        <title>Weather</title>
         <link rel="stylesheet" href="style.css"/>
         <script src="script.js" defer></script>
     </head>
     <body>
-        <form>
-            <input type="text" id="search" placeholder="Pesquisar por localização"/>
-        </form>
+        <div class="header">
+            <div class="logo-container">
+                <h1>weather</h1>
+            </div>
+        </div>
+        <div class="body-search">
+            <form id="form">
+                <input type="text" id="search" placeholder="Search by location" autocomplete="off"/>
+            </form>
+            <main id="main">
+            </main>
+        </div>
     </body>
 
 </html>
