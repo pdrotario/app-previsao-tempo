@@ -3,12 +3,45 @@ const form = document.getElementById('form');
 const search = document.getElementById('search');
 
 const apikey = '4f0c5f237b428cfe861db9dc06e5875a';
+const geoAPIKey = '8cc70dc5f6b2465594d2a9ce1c343541';
 
 const url = (city, key)=> `https://api.openweathermap.org/data/2.5/weather?q=
 ${city}&appid=${apikey}`;
 
-async function getWeatherBycity(city){
-    const resp = await fetch(url(city),{
+var icon = document.getElementById("icon");
+icon.onclick = function(){
+    document.body.classList.toggle("dark-theme");
+    if(document.body.classList.contains("dark-theme")){
+        icon.src="img/sun.png";
+    }else{
+        icon.src="img/moon.png";
+    }
+}
+
+function getUserPosition(){
+    if(navigator.geolocation){
+        navigator.geolocation.getCurrentPosition(onSuccess,onError);
+    }else{
+        return;
+    }
+}
+
+function onSuccess(position){
+    let{latitude, longitude} = position.coords;
+    fetch(`https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}
+    &key=${geoAPIKey}`).then(response => response.json().then(result => {
+        let allDetails = result.results[0].components;
+        let {city,state,country} = allDetails;
+        getWeatherBycity(city);
+    }));
+}
+function onError(){
+    main.innerHTML="<p>Not possible to get your localization. Please, search for wanted city.</p>";
+}
+getUserPosition();
+
+async function getWeatherBycity(county){
+    const resp = await fetch(url(county),{
     origin: "cors"});
     const respData = await resp.json();
 
@@ -16,10 +49,14 @@ async function getWeatherBycity(city){
     console.log(respData);
 }
 
+
 function addWeatherToPage(data){
+    const city = data.name;
+    const country = data.sys.country;
     const temp=KtoC(data.main.temp);
     const tempMax = KtoC(data.main.temp_max);
     const tempMin = KtoC(data.main.temp_min);
+    const feelLike = KtoC(data.main.feels_like);
     const weather = document.createElement("div");
     weather.classList.add('weather');
     const titleCase = text=>{
@@ -29,10 +66,10 @@ function addWeatherToPage(data){
     }
 
     weather.innerHTML = `
-        <h2><img src="https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png"/>${temp}°C</h2>
-        <small>Max: ${tempMax}°C Min: ${tempMin}°C</small>
-        <small class="trn" id="text-to-translate">${data.weather[0].main}<small>
-        <p>in ${titleCase(search.value)}</p>
+        <h2><img class="icon-weather" src="https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png"/>${temp}°C</h2>
+        <small>${tempMax}° / ${tempMin}°</small>
+        <small>Feels like ${feelLike}°C</small>
+        <p>in ${city}, ${country}</p>
     `;
 
     //Clean up
@@ -40,6 +77,7 @@ function addWeatherToPage(data){
 
     main.appendChild(weather);
 }
+
 
 function KtoC(K){
     return Math.floor((K - 273.15));
