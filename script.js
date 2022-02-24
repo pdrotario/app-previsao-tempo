@@ -1,6 +1,7 @@
 const main = document.getElementById('main');
 const form = document.getElementById('form');
 const search = document.getElementById('search');
+var hasLoaded = new Boolean;
 
 const apikey = '4f0c5f237b428cfe861db9dc06e5875a';
 const geoAPIKey = '8cc70dc5f6b2465594d2a9ce1c343541';
@@ -37,6 +38,8 @@ function onSuccess(position){
 }
 function onError(){
     main.innerHTML="<p>Not possible to get your localization. Please, search for wanted city.</p>";
+    hasLoaded=false;
+    $(".loader").fadeOut(500);
 }
 getUserPosition();
 
@@ -44,11 +47,10 @@ async function getWeatherBycity(county){
     const resp = await fetch(url(county),{
     origin: "cors"});
     const respData = await resp.json();
-
     addWeatherToPage(respData);
     console.log(respData);
+    hasLoaded=false;
 }
-
 
 function addWeatherToPage(data){
     const city = data.name;
@@ -59,12 +61,12 @@ function addWeatherToPage(data){
     const feelLike = KtoC(data.main.feels_like);
     const weather = document.createElement("div");
     weather.classList.add('weather');
+    weather.id = "weather";
     const titleCase = text=>{
         return text.toLowerCase().split(' ').map((word)=>{
             return word[0].toUpperCase() + word.slice(1);
         }).join(' ')
     }
-
     weather.innerHTML = `
         <h2><img class="icon-weather" src="https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png"/>${temp}°C</h2>
         <small>${tempMax}° / ${tempMin}°</small>
@@ -76,6 +78,8 @@ function addWeatherToPage(data){
     main.innerHTML="";
 
     main.appendChild(weather);
+    hasLoaded=true;
+    load();
 }
 
 
@@ -91,3 +95,16 @@ form.addEventListener('submit',(e)=>{
         getWeatherBycity(city);
     }
 });
+
+function load(){
+    if(!hasLoaded){
+        document.getElementById('weather').style.display="none";
+        $(".loader").fadeIn(1000);
+    }else{
+        document.getElementById('weather').style.display="block";
+        $(".loader").fadeOut(1000);
+        hasLoaded=true;
+    }
+
+   
+}
