@@ -60,6 +60,7 @@ function addWeatherToPage(data){
     const tempMin = KtoC(data.main.temp_min);
     const feelLike = KtoC(data.main.feels_like);
     const weather = document.createElement("div");
+    const windSpeed = Math.floor(data.wind.speed*3.6);
     weather.classList.add('weather');
     weather.id = "weather";
     const titleCase = text=>{
@@ -71,6 +72,9 @@ function addWeatherToPage(data){
         <h2><img class="icon-weather" src="https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png"/>${temp}°C</h2>
         <small>${tempMax}° / ${tempMin}°</small>
         <small>Feels like ${feelLike}°C</small>
+        <p>${data.weather[0].main}</p>
+        <p>Relative humidity: ${data.main.humidity}%</p>
+        <p>Wind speed: ${windSpeed} km/h</p>
         <p>in ${city}, ${country}</p>
     `;
 
